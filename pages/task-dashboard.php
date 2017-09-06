@@ -1,3 +1,14 @@
+<?php  
+session_start(); 
+include "../php/connection/connect.php"; 
+if($_SESSION['status'] == 'OK')
+{
+$name = $_SESSION['name'];
+$username = $_SESSION['username'];
+$role_id = $_SESSION['role_id'];
+$user_id = $_SESSION['user_id'];
+
+?>
 <!DOCTYPE html>
 <html>
    <head>
@@ -96,10 +107,17 @@
             <div class="col-lg-8">
                <h1 class="page-header">Task- Dashboard</h1>
             </div>
+			<?php if($role_id >= 6){ 
+			
+			$manageUsersQuery = "select name, user_id from employeeinfo where reporting_to='$user_id'";
+			$manageUsersQueryResult = mysqli_query($conn, $manageUsersQuery);
+			
+			?>
             <div class="col-lg-4">
                <button type="button" class="page-header btn btn-lg btn-primary pull-right" data-toggle="modal" data-target="#addTask">Add Task</button>
                <!-- Button trigger modal -->
             </div>
+			<?php } ?>
          </div>
          <!--/.row-->
          <div class="row">
@@ -142,34 +160,6 @@
                <div class="panel panel-default">
                   <div class="panel-heading">
                      Task Assigned Graph
-                     <ul class="pull-right panel-settings panel-button-tab-right">
-                        <li class="dropdown">
-                           <a class="pull-right dropdown-toggle" data-toggle="dropdown" href="#">
-                           <em class="fa fa-cogs"></em>
-                           </a>
-                           <ul class="dropdown-menu dropdown-menu-right">
-                              <li>
-                                 <ul class="dropdown-settings">
-                                    <li><a href="#">
-                                       <em class="fa fa-cog"></em> Settings 1
-                                       </a>
-                                    </li>
-                                    <li class="divider"></li>
-                                    <li><a href="#">
-                                       <em class="fa fa-cog"></em> Settings 2
-                                       </a>
-                                    </li>
-                                    <li class="divider"></li>
-                                    <li><a href="#">
-                                       <em class="fa fa-cog"></em> Settings 3
-                                       </a>
-                                    </li>
-                                 </ul>
-                              </li>
-                           </ul>
-                        </li>
-                     </ul>
-                     <span class="pull-right clickable panel-toggle panel-button-tab-left"><em class="fa fa-toggle-up"></em></span>
                   </div>
                   <div class="panel-body">
                      <div class="canvas-wrapper">
@@ -180,6 +170,10 @@
             </div>
          </div>
          <!--/.row-->
+		 
+		 <?php
+		 if($role_id>=6){
+			 ?>
          <div class="row">
             <div class="col-md-12">
                <div class="panel panel-default ">
@@ -188,50 +182,26 @@
                   </div>
                   <div class="panel-body timeline-container">
                      <ul class="timeline">
-                        <li>
-                           <div class="timeline-badge"><em class="glyphicon glyphicon-pushpin"></em></div>
-                           <div class="timeline-panel">
-                              <div class="timeline-heading">
-                                 <h4 class="timeline-title">Lorem ipsum dolor sit amet</h4>
-                              </div>
-                              <div class="timeline-body">
-                                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at sodales nisl. Donec malesuada orci ornare risus finibus feugiat.</p>
-                              </div>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="timeline-badge primary"><em class="glyphicon glyphicon-link"></em></div>
-                           <div class="timeline-panel">
-                              <div class="timeline-heading">
-                                 <h4 class="timeline-title">Lorem ipsum dolor sit amet</h4>
-                              </div>
-                              <div class="timeline-body">
-                                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                              </div>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="timeline-badge"><em class="glyphicon glyphicon-camera"></em></div>
-                           <div class="timeline-panel">
-                              <div class="timeline-heading">
-                                 <h4 class="timeline-title">Lorem ipsum dolor sit amet</h4>
-                              </div>
-                              <div class="timeline-body">
-                                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at sodales nisl. Donec malesuada orci ornare risus finibus feugiat.</p>
-                              </div>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="timeline-badge"><em class="glyphicon glyphicon-paperclip"></em></div>
-                           <div class="timeline-panel">
-                              <div class="timeline-heading">
-                                 <h4 class="timeline-title">Lorem ipsum dolor sit amet</h4>
-                              </div>
-                              <div class="timeline-body">
-                                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                              </div>
-                           </div>
-                        </li>
+						<?php
+							$recentTaskUpdatesQuery = 'SELECT t.task_name,tu.comments FROM taskuserupdate tu JOIN task t on t.id = tu.task_id where t.assigned_by = $user_id order by tu.id desc limit 10; ';
+							$recentTaskUpdatesQueryResult = mysqli_query($conn, $recentTaskUpdatesQuery);
+							
+							if($recentTaskUpdatesQueryResult){								 
+									while($recentTaskUpdateRow=$recentTaskUpdatesQueryResult->fetch_assoc()){
+										echo '
+											<li>
+												<div class="timeline-badge"><em class="glyphicon glyphicon-pushpin"></em></div>
+													<div class="timeline-panel">
+													<div class="timeline-heading">
+													<h4 class="timeline-title">'.$recentTaskUpdateRow["task_name"].'</h4></div>';
+										echo '<div class="timeline-body"><p>'.  $recentTaskUpdateRow["comments"] .'</p></div> </div></li>';
+								
+									}
+									}
+									else{
+										echo '<h4>Sorry! No updates yet!</h4>';
+									}
+						?>
                      </ul>
                   </div>
                </div>
@@ -239,12 +209,26 @@
             <!--/.col-->
          </div>
          <!--/.row-->
+		 <?php
+		 }
+		 ?>
+		 
          <!-- Table start-->
-         <div class="row">
+         <?php
+		 if($role_id>=6){
+			 $fetchTasksCreatedQuery = "select t.id, t.task_name, t.task_desc,  e.name,  t.assigned_date, 
+											t.target_date, t.submit_date, t.task_status from task t JOIN employeeinfo e on t.assigned_to = e.user_id where t.assigned_by='$user_id'";
+			 $fetchTasksCreatedQueryResult = mysqli_query($conn, $fetchTasksCreatedQuery);
+			 
+			 $taskCreatedTable=true;
+
+			
+		 ?>
+		  <div class="row">
             <div class="col-md-12">
                <div class="panel panel-default ">
                   <div class="panel-heading">
-                     My Tasks
+                     Tasks Created by you
                   </div>
                   <div class="panel-body">
                      <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
@@ -277,24 +261,198 @@
                            </tr>
                         </tfoot>
                         <tbody>
+						 <?php
+						 			if($fetchTasksCreatedQueryResult){								 
+									while($taskRow=$fetchTasksCreatedQueryResult->fetch_assoc()){
+											$fetchTaskUpdatesQuery = "SELECT tou.feedback , NULL as percentage, NULL as comments FROM taskownerupdate tou where tou.task_id=$taskRow[id] UNION 
+																	  SELECT NULL, tu.percentage, tu.comments from taskuserupdate tu WHERE tu.task_id=$taskRow[id]";
+											$fetchTaskUpdatesQueryResult = mysqli_query($conn, $fetchTaskUpdatesQuery);
+											
+											
+											echo '<tr>
+											<td>'.$taskRow["id"].'</td>
+											<td>'.$taskRow["task_name"].'</td>
+											<td>'.$taskRow["name"].'</td>
+											<td>'.$taskRow["assigned_date"].'</td>
+											<td>'.$taskRow["target_date"].'</td>
+											<td>'.$taskRow["submit_date"].'</td>';
+											
+											echo '<td>';
+											$percentageId = 1;
+											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
+												if(NULL != $taskUpdateRow["percentage"]){
+												echo $percentageId.") ".$taskUpdateRow["percentage"]."</br>";
+												$percentageId++;
+												}
+											}
+											echo '</td>';
+											
+											echo '<td>';
+											$commentsId = 1;
+											mysqli_data_seek($fetchTaskUpdatesQueryResult, 0);
+											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
+												if(NULL !=$taskUpdateRow["comments"]){
+												echo $commentsId.") ".$taskUpdateRow["comments"]."</br>";
+												$commentsId++;
+												}
+											}
+											echo '</td>';
+											
+											echo '<td>';
+											$feedbackId=1;
+											mysqli_data_seek($fetchTaskUpdatesQueryResult, 0);
+											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
+												if(NULL !=$taskUpdateRow["feedback"]){
+												echo $feedbackId.") ".$taskUpdateRow["feedback"]."</br>";
+												$feedbackId++;
+												}
+											}
+											echo '</td>';
+											// data-toggle="modal" data-target="#updateTask"
+
+											echo '
+											 <td>
+												<a><span class="glyphicon glyphicon-edit" aria-hidden="true" onclick=\'populateTaskUpdateForm("'.$taskRow["id"].'","'.$taskRow["task_name"].'","true")\' data-toggle="modal" data-target="#updateTask"></span></a>
+												';
+												if($taskRow['task_status']=='Completed'){
+												echo '
+												&nbsp;
+												<a><span class="glyphicon glyphicon-ok-sign" aria-hidden="true" onclick=\'verifyTaskForm("'.$taskRow["id"].'","'.$taskRow["task_name"].'")\' data-toggle="modal" data-target="#verifyTaskModal"></span></a>
+												';
+												}
+												if($taskRow['task_status']=='Not Started'){
+													echo'
+												&nbsp;
+												<a><span class="glyphicon glyphicon-trash" aria-hidden="true" onclick=\'deleteTaskForm("'.$taskRow["id"].'","'.$taskRow["task_name"].'")\' data-toggle="modal" data-target="#deleteTaskModal"></span></a>';
+												}
+												
+											echo '</td></tr>';
+											
+										}
+									}
+									else{
+									echo '<tr>
+									<td colspan="10"> You haven\'t added any tasks yet!</td>
+									</tr>';
+									}
+						?>
+                             
+                           
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <!--/.col-->
+         </div>
+         <!--/.row-->
+		 <?php
+		 }
+		 ?>
+		 
+		 
+		 
+		  <div class="row">
+            <div class="col-md-12">
+               <div class="panel panel-default ">
+                  <div class="panel-heading">
+                     Tasks Assiged to you
+                  </div>
+                  <div class="panel-body">
+                     <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                        <thead>
                            <tr>
-                              <td>1</td>
-                              <td>Finish UI</td>
-                              <td>JP</td>
-                              <td>2017-09-01</td>
-                              <td>2017-09-07</td>
-                              <td>-</td>
-                              <td>30</td>
-                              <td>Except Task table everything is completed
-                                 Except Task table everything is completed
-                              </td>
-                              <td>Time is ticking up. Finish it fast!!</td>
-                              <td>
-                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                 &nbsp;
-                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                              </td>
+                              <th>Task Id</th>
+                              <th>Name</th>
+                              <th>To</th>
+                              <th>Start Date</th>
+                              <th>Target Date</th>
+                              <th>Completed Date</th>
+                              <th>% Completed</th>
+                              <th>Comments</th>
+                              <th>Feedback</th>
+                              <th>Action</th>
                            </tr>
+                        </thead>
+                        <tfoot>
+                          
+                        </tfoot>
+                        <tbody>
+                            <?php
+							 $taskAssignedTable=true;
+							 $fetchTasksAssignedQuery = "select t.id, t.task_name, t.task_desc,  e.name,  t.assigned_date, 
+											t.target_date, t.submit_date, t.task_status from task t JOIN employeeinfo e on t.assigned_to = e.user_id where t.assigned_to='$user_id'";
+							$fetchTasksAssignedQueryResult = mysqli_query($conn, $fetchTasksAssignedQuery);
+						 
+						 if($fetchTasksAssignedQueryResult){								 
+									while($taskAssignedRow=$fetchTasksAssignedQueryResult->fetch_assoc()){
+											
+											$fetchAssignedTaskUpdatesQuery = "SELECT tou.feedback , NULL as percentage, NULL as comments FROM taskownerupdate tou where tou.task_id=$taskAssignedRow[id] UNION 
+																	  SELECT NULL, tu.percentage, tu.comments from taskuserupdate tu WHERE tu.task_id=$taskAssignedRow[id]";
+											$fetchAssignedTaskUpdatesQueryResult = mysqli_query($conn, $fetchAssignedTaskUpdatesQuery);
+											
+											
+											echo '<tr>
+											<td>'.$taskAssignedRow["id"].'</td>
+											<td>'.$taskAssignedRow["task_name"].'</td>
+											<td>'.$taskAssignedRow["name"].'</td>
+											<td>'.$taskAssignedRow["assigned_date"].'</td>
+											<td>'.$taskAssignedRow["target_date"].'</td>
+											<td>'.$taskAssignedRow["submit_date"].'</td>';
+											
+											echo '<td>';
+											if($fetchAssignedTaskUpdatesQueryResult){
+											$percentageId = 1;
+											while($taskUpdateRow=$fetchAssignedTaskUpdatesQueryResult->fetch_assoc()){
+												if(NULL != $taskUpdateRow["percentage"]){
+												echo $percentageId.") ".$taskUpdateRow["percentage"]."</br>";
+												$percentageId++;
+												}
+											}
+											}
+											echo '</td>';
+											
+											echo '<td>';
+											if($fetchAssignedTaskUpdatesQueryResult){
+											$commentsId = 1;
+											mysqli_data_seek($fetchAssignedTaskUpdatesQueryResult, 0);
+											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
+												if(NULL !=$taskUpdateRow["comments"]){
+												echo $commentsId.") ".$taskUpdateRow["comments"]."</br>";
+												$commentsId++;
+												}
+											}
+											}
+											echo '</td>';
+											
+											echo '<td>';
+											$feedbackId=1;
+											if($fetchAssignedTaskUpdatesQueryResult){
+											mysqli_data_seek($fetchAssignedTaskUpdatesQueryResult, 0);
+											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
+												if(NULL !=$taskUpdateRow["feedback"]){
+												echo $feedbackId.") ".$taskUpdateRow["feedback"]."</br>";
+												$feedbackId++;
+												}
+											}
+											}
+											echo '</td>';
+											
+											echo '
+											 <td>
+												
+												<a><span class="glyphicon glyphicon-edit" aria-hidden="true" onclick=\'populateTaskUpdateForm("'.$taskAssignedRow["id"].'","'.$taskAssignedRow["task_name"].'","false")\' data-toggle="modal" data-target="#updateTask"></span></a>
+												';
+											echo '</td></tr>';
+											
+										}
+									}
+									else{
+									echo '<tr>
+									<td colspan="10"> No tasks assigned yet!</td>
+									</tr>';
+									}
+						?>
                         </tbody>
                      </table>
                   </div>
@@ -331,6 +489,52 @@
          $(document).ready(function() {
              $('#example').DataTable();
          } );
+		 
+		 function addNewTask()
+		 {
+			 document.getElementById("addNewTaskForm").submit();
+		 }
+		 
+		 function updateTask()
+		 {
+			 document.getElementById("updateTaskForm").submit();
+		 }
+		 
+		 function deleteTask()
+		 {
+			 document.getElementById("deleteTaskForm").submit();
+		 }
+		 
+		 function verifyTask()
+		 {
+			 document.getElementById("verifyTaskForm").submit();
+		 }
+		 
+		 
+		 function populateTaskUpdateForm(id,name,flag){
+			 document.getElementById("updateTaskId").value = id;
+			 document.getElementById("updateTaskName").value = name;
+			 if(flag == 'true'){
+				document.getElementById("ownerUpdateCheck").style.display = 'block';
+				document.getElementById("commentsUpdateCheck").style.display = 'none';
+				document.getElementById("percentageUpdateCheck").style.display = 'none';
+				
+			 }else{
+				document.getElementById("ownerUpdateCheck").style.display = 'none';
+				document.getElementById("commentsUpdateCheck").style.display = 'block';
+				document.getElementById("percentageUpdateCheck").style.display = 'block';
+			 }
+		 }
+		 
+		 function deleteTaskForm(id,name){
+			 document.getElementById("deleteTaskId").textContent = name;
+			 document.getElementById("taskId").value = id;
+			}
+		
+		function verifyTaskForm(id,name){
+			 document.getElementById("verifyTask").textContent = name;
+			 document.getElementById("verifyTaskId").value = id;
+			}
       </script>
       <!-- Modal -->
       <div class="modal fade" id="addTask" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -343,30 +547,38 @@
                <div class="modal-body">
                   <div class="panel panel-default">
                      <div class="panel-body">
-                        <form role="form">
+                        <form role="form" id="addNewTaskForm" action="../php/addTask.php" method="POST">
                            <div class="col-md-6">
                               <div class="form-group">
                                  <label>Task Name</label>
-                                 <input type="text" class="form-control" placeholder="Name of the task">
+                                 <input type="text" name="taskName" class="form-control" placeholder="Name of the task">
                               </div>
                               <div class="form-group">
                                  <label>Description</label>
-                                 <textarea class="form-control" rows="3"></textarea>
+                                 <textarea name="taskDesc" class="form-control" rows="3"></textarea>
                               </div>
                               <div class="form-group">
+							  <?php
+								 $rowcount = mysqli_num_rows($manageUsersQueryResult);
+								 if($rowcount != FALSE){
+								 ?>
                                  <label>Assigned to</label>
-                                 <select class="form-control">
-                                    <option>JP</option>
-                                    <option>Sekar</option>
-                                    <option>Arun</option>
-                                    <option>Harish</option>
-                                    <option>Azar</option>
+								 
+                                 <select class="form-control" name="assignedTo">
+								    <?php
+									while($userRow=mysqli_fetch_row($manageUsersQueryResult)){
+											echo '<option value='.$userRow["1"].'>'.$userRow["0"].'</option>';
+										}	
+									?>
                                  </select>
-                                 <div class="checkbox">
+								 <?php
+								}
+								?>
+                                <!-- <div class="checkbox">
                                     <label>
                                     <input type="checkbox" value="">Multiple Guys
                                     </label>
-                                 </div>
+                                 </div> -->
                               </div>
                               <!--<div class="form-group">
                                  <label>Assigned to</label>
@@ -382,11 +594,11 @@
                            <div class="col-md-6">
                               <div class="form-group">
                                  <label>Assignment Start Date</label>
-                                 <input type="text" class="form-control" placeholder="yyyy-mm-dd">
+                                 <input type="text" name="startDate" class="form-control" placeholder="yyyy-mm-dd">
                               </div>
                               <div class="form-group">
                                  <label>Assignment Target Date</label>
-                                 <input type="text" class="form-control" placeholder="yyyy-mm-dd">
+                                 <input type="text" name="targetDate" class="form-control" placeholder="yyyy-mm-dd">
                               </div>
                            </div>
                         </form>
@@ -395,11 +607,131 @@
                </div>
                <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                  <button type="button" class="btn btn-primary" >Add Task</button>
+				  <button type="submit" class="btn btn-primary" onclick="addNewTask()">Add Task</button>
+                  
                </div>
             </div>
          </div>
       </div>
+	  
+	  
+	  <div class="modal fade" id="updateTask" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+         <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                  <h4 class="modal-title" id="myModalLabel">Give Periodic Updates!</h4>
+               </div>
+               <div class="modal-body">
+                  <div class="panel panel-default">
+                     <div class="panel-body">
+                        <form role="form" id="updateTaskForm" action="../php/updateTask.php" method="POST">
+                           <div class="col-md-6">
+                              <div class="form-group">
+                                 <label>Task Name</label>
+                                 <input type="text" name="updateTaskName" id="updateTaskName" class="form-control" placeholder="Name of the task" readonly>
+                              </div>
+                              <div class="form-group" id="commentsUpdateCheck">
+                                 <label>Comments</label>
+                                 <textarea name="updateTaskComments" id="updateTaskComments" class="form-control" rows="3"></textarea>
+                              </div>
+							  
+							  <div class="form-group" id="ownerUpdateCheck">
+                                 <label>Feedback</label>
+                                 <textarea name="updateTaskFeedback" id="updateTaskFeedback" class="form-control" rows="3"></textarea>
+                              </div>
+							  </div>
+                            
+                           <div class="col-md-6">
+						    <div class="form-group">
+                                 <label>Task Id</label>
+                                 <input type="text" name="updateTaskId" id="updateTaskId" class="form-control" placeholder="Id of the task" readonly>
+                              </div>
+                              <div class="form-group" id="percentageUpdateCheck">
+                                 <label>Percentage Completed</label>
+                                 <input type="text" name="updateTaskPercentage" id="updateTaskPercentage" class="form-control" placeholder="0 - 100%">
+                              </div>
+                              
+                           </div>
+                        </form>
+                     </div>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				  <button type="submit" class="btn btn-primary" onclick="updateTask()">Update Task</button>
+                  
+               </div>
+            </div>
+         </div>
+      </div>
+	  
+	  <div class="modal fade" id="deleteTaskModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+         <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                  <h4 class="modal-title" id="myModalLabel">Delete Task</h4>
+               </div>
+               <div class="modal-body">
+                  <div class="panel panel-default">
+                     <div class="panel-body">
+                        <form role="form" id="deleteTaskForm" action="../php/deleteTask.php" method="POST">
+                           <div class="col-md-6">
+                              <div class="form-group">
+                                 <label>Are you sure you want to delete <span id="deleteTaskId"> </span> ?</label>
+                                 <input type="hidden"  name="taskId" id="taskId" class="form-control">
+                              </div>
+                             </div>
+                        </form>
+                     </div>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				  <button type="submit" class="btn btn-primary" onclick="deleteTask()">Delete Task</button>
+                  
+               </div>
+            </div>
+         </div>
+      </div>
+	  
+	  <div class="modal fade" id="verifyTaskModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+         <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                  <h4 class="modal-title" id="myModalLabel">Verify Task</h4>
+               </div>
+               <div class="modal-body">
+                  <div class="panel panel-default">
+                     <div class="panel-body">
+                        <form role="form" id="deleteTaskForm" action="../php/verifyTask.php" method="POST">
+                           <div class="col-md-6">
+                              <div class="form-group">
+                                 <label>Are you sure you want to make this <span id="verifyTask"> </span> verified?</label>
+                                 <input type="hidden"  name="verifyTaskId" id="verifyTaskId" class="form-control" readonly>
+                              </div>
+                             </div>
+                        </form>
+                     </div>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				  <button type="submit" class="btn btn-primary" onclick="verifyTask()">Verify Task</button>
+                  
+               </div>
+            </div>
+         </div>
+      </div>
+	  
+	  
       </div>
    </body>
 </html>
+<?php
+}else{
+	header("Location:http://localhost/infyInnovation/login.php");
+}
+?>
