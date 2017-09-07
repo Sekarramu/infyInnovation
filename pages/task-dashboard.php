@@ -121,35 +121,43 @@ $user_id = $_SESSION['user_id'];
          </div>
          <!--/.row-->
          <div class="row">
-            <div class="col-xs-6 col-md-3">
+			<div class="col-xs-6 col-md-4">
                <div class="panel panel-default">
                   <div class="panel-body easypiechart-panel">
                      <h4>Not Started</h4>
+                     <div class="easypiechart" id="easypiechart-orange" data-percent="92" ><span class="percent">92%</span></div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-xs-6 col-md-4">
+               <div class="panel panel-default">
+                  <div class="panel-body easypiechart-panel">
+                     <h4>Started</h4>
                      <div class="easypiechart" id="easypiechart-blue" data-percent="92" ><span class="percent">92%</span></div>
                   </div>
                </div>
             </div>
-            <div class="col-xs-6 col-md-3">
+            <div class="col-xs-6 col-md-4">
                <div class="panel panel-default">
                   <div class="panel-body easypiechart-panel">
-                     <h4>On Going</h4>
-                     <div class="easypiechart" id="easypiechart-orange" data-percent="65" ><span class="percent">65%</span></div>
+                     <h4>Verified</h4>
+                     <div class="easypiechart" id="easypiechart-blue" data-percent="65" ><span class="percent">65%</span></div>
                   </div>
                </div>
             </div>
-            <div class="col-xs-6 col-md-3">
+            <div class="col-md-offset-2 col-xs-6 col-md-4">
                <div class="panel panel-default">
                   <div class="panel-body easypiechart-panel">
                      <h4>Delayed</h4>
-                     <div class="easypiechart" id="easypiechart-teal" data-percent="56" ><span class="percent">56%</span></div>
+                     <div class="easypiechart" id="easypiechart-red" data-percent="56" ><span class="percent">56%</span></div>
                   </div>
                </div>
             </div>
-            <div class="col-xs-6 col-md-3">
+            <div class="col-xs-6 col-md-4">
                <div class="panel panel-default">
                   <div class="panel-body easypiechart-panel">
                      <h4>On Time</h4>
-                     <div class="easypiechart" id="easypiechart-red" data-percent="27" ><span class="percent">27%</span></div>
+                     <div class="easypiechart" id="easypiechart-teal" data-percent="27" ><span class="percent">27%</span></div>
                   </div>
                </div>
             </div>
@@ -183,10 +191,13 @@ $user_id = $_SESSION['user_id'];
                   <div class="panel-body timeline-container">
                      <ul class="timeline">
 						<?php
-							$recentTaskUpdatesQuery = 'SELECT t.task_name,tu.comments FROM taskuserupdate tu JOIN task t on t.id = tu.task_id where t.assigned_by = $user_id order by tu.id desc limit 10; ';
+			
+							$recentTaskUpdatesQuery = 'SELECT t.task_name,tu.comments FROM taskuserupdate tu JOIN task t on t.id = tu.task_id where t.assigned_by = $user_id order by tu.id desc limit 10';
 							$recentTaskUpdatesQueryResult = mysqli_query($conn, $recentTaskUpdatesQuery);
-							
-							if($recentTaskUpdatesQueryResult){								 
+						
+			
+							//$recent_task_updates_count = $recentTaskUpdatesQueryResult->num_rows;
+							if($recentTaskUpdatesQueryResult ){								 
 									while($recentTaskUpdateRow=$recentTaskUpdatesQueryResult->fetch_assoc()){
 										echo '
 											<li>
@@ -219,10 +230,8 @@ $user_id = $_SESSION['user_id'];
 			 $fetchTasksCreatedQuery = "select t.id, t.task_name, t.task_desc,  e.name,  t.assigned_date, 
 											t.target_date, t.submit_date, t.task_status from task t JOIN employeeinfo e on t.assigned_to = e.user_id where t.assigned_by='$user_id'";
 			 $fetchTasksCreatedQueryResult = mysqli_query($conn, $fetchTasksCreatedQuery);
+			 $created_task_count = $fetchTasksCreatedQueryResult->num_rows;
 			 
-			 $taskCreatedTable=true;
-
-			
 		 ?>
 		  <div class="row">
             <div class="col-md-12">
@@ -262,12 +271,13 @@ $user_id = $_SESSION['user_id'];
                         </tfoot>
                         <tbody>
 						 <?php
-						 			if($fetchTasksCreatedQueryResult){								 
+						 			if($created_task_count > 0){								 
 									while($taskRow=$fetchTasksCreatedQueryResult->fetch_assoc()){
 											$fetchTaskUpdatesQuery = "SELECT tou.feedback , NULL as percentage, NULL as comments FROM taskownerupdate tou where tou.task_id=$taskRow[id] UNION 
 																	  SELECT NULL, tu.percentage, tu.comments from taskuserupdate tu WHERE tu.task_id=$taskRow[id]";
 											$fetchTaskUpdatesQueryResult = mysqli_query($conn, $fetchTaskUpdatesQuery);
 											
+											$created_task_updates_count = $fetchTaskUpdatesQueryResult->num_rows;
 											
 											echo '<tr>
 											<td>'.$taskRow["id"].'</td>
@@ -279,16 +289,19 @@ $user_id = $_SESSION['user_id'];
 											
 											echo '<td>';
 											$percentageId = 1;
+											if($created_task_updates_count > 0){
 											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
 												if(NULL != $taskUpdateRow["percentage"]){
 												echo $percentageId.") ".$taskUpdateRow["percentage"]."</br>";
 												$percentageId++;
 												}
 											}
+											}
 											echo '</td>';
 											
 											echo '<td>';
 											$commentsId = 1;
+											if($created_task_updates_count > 0){
 											mysqli_data_seek($fetchTaskUpdatesQueryResult, 0);
 											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
 												if(NULL !=$taskUpdateRow["comments"]){
@@ -296,10 +309,12 @@ $user_id = $_SESSION['user_id'];
 												$commentsId++;
 												}
 											}
+											}
 											echo '</td>';
 											
 											echo '<td>';
 											$feedbackId=1;
+											if($created_task_updates_count > 0){
 											mysqli_data_seek($fetchTaskUpdatesQueryResult, 0);
 											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
 												if(NULL !=$taskUpdateRow["feedback"]){
@@ -307,20 +322,23 @@ $user_id = $_SESSION['user_id'];
 												$feedbackId++;
 												}
 											}
+											}
 											echo '</td>';
 											// data-toggle="modal" data-target="#updateTask"
 
-											echo '
-											 <td>
+											echo '<td>';
+											if($taskRow['task_status'] !=5){
+												echo'
 												<a><span class="glyphicon glyphicon-edit" aria-hidden="true" onclick=\'populateTaskUpdateForm("'.$taskRow["id"].'","'.$taskRow["task_name"].'","true")\' data-toggle="modal" data-target="#updateTask"></span></a>
 												';
-												if($taskRow['task_status']=='Completed'){
+											}
+												if($taskRow['task_status']==3 || $taskRow['task_status']==4 ){
 												echo '
 												&nbsp;
 												<a><span class="glyphicon glyphicon-ok-sign" aria-hidden="true" onclick=\'verifyTaskForm("'.$taskRow["id"].'","'.$taskRow["task_name"].'")\' data-toggle="modal" data-target="#verifyTaskModal"></span></a>
 												';
 												}
-												if($taskRow['task_status']=='Not Started'){
+												if($taskRow['task_status']==1){
 													echo'
 												&nbsp;
 												<a><span class="glyphicon glyphicon-trash" aria-hidden="true" onclick=\'deleteTaskForm("'.$taskRow["id"].'","'.$taskRow["task_name"].'")\' data-toggle="modal" data-target="#deleteTaskModal"></span></a>';
@@ -383,14 +401,17 @@ $user_id = $_SESSION['user_id'];
 							 $fetchTasksAssignedQuery = "select t.id, t.task_name, t.task_desc,  e.name,  t.assigned_date, 
 											t.target_date, t.submit_date, t.task_status from task t JOIN employeeinfo e on t.assigned_to = e.user_id where t.assigned_to='$user_id'";
 							$fetchTasksAssignedQueryResult = mysqli_query($conn, $fetchTasksAssignedQuery);
+							
+							$task_assigned_count = $fetchTasksAssignedQueryResult->num_rows;
 						 
-						 if($fetchTasksAssignedQueryResult){								 
+						 if($task_assigned_count > 0){								 
 									while($taskAssignedRow=$fetchTasksAssignedQueryResult->fetch_assoc()){
 											
 											$fetchAssignedTaskUpdatesQuery = "SELECT tou.feedback , NULL as percentage, NULL as comments FROM taskownerupdate tou where tou.task_id=$taskAssignedRow[id] UNION 
 																	  SELECT NULL, tu.percentage, tu.comments from taskuserupdate tu WHERE tu.task_id=$taskAssignedRow[id]";
 											$fetchAssignedTaskUpdatesQueryResult = mysqli_query($conn, $fetchAssignedTaskUpdatesQuery);
 											
+											$task_updates_count = $fetchAssignedTaskUpdatesQueryResult->num_rows;
 											
 											echo '<tr>
 											<td>'.$taskAssignedRow["id"].'</td>
@@ -401,7 +422,7 @@ $user_id = $_SESSION['user_id'];
 											<td>'.$taskAssignedRow["submit_date"].'</td>';
 											
 											echo '<td>';
-											if($fetchAssignedTaskUpdatesQueryResult){
+											if($task_updates_count > 0){
 											$percentageId = 1;
 											while($taskUpdateRow=$fetchAssignedTaskUpdatesQueryResult->fetch_assoc()){
 												if(NULL != $taskUpdateRow["percentage"]){
@@ -413,10 +434,10 @@ $user_id = $_SESSION['user_id'];
 											echo '</td>';
 											
 											echo '<td>';
-											if($fetchAssignedTaskUpdatesQueryResult){
+											if($task_updates_count > 0){
 											$commentsId = 1;
 											mysqli_data_seek($fetchAssignedTaskUpdatesQueryResult, 0);
-											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
+											while($taskUpdateRow=$fetchAssignedTaskUpdatesQueryResult->fetch_assoc()){
 												if(NULL !=$taskUpdateRow["comments"]){
 												echo $commentsId.") ".$taskUpdateRow["comments"]."</br>";
 												$commentsId++;
@@ -427,9 +448,9 @@ $user_id = $_SESSION['user_id'];
 											
 											echo '<td>';
 											$feedbackId=1;
-											if($fetchAssignedTaskUpdatesQueryResult){
+											if($task_updates_count > 0){
 											mysqli_data_seek($fetchAssignedTaskUpdatesQueryResult, 0);
-											while($taskUpdateRow=$fetchTaskUpdatesQueryResult->fetch_assoc()){
+											while($taskUpdateRow=$fetchAssignedTaskUpdatesQueryResult->fetch_assoc()){
 												if(NULL !=$taskUpdateRow["feedback"]){
 												echo $feedbackId.") ".$taskUpdateRow["feedback"]."</br>";
 												$feedbackId++;
@@ -438,11 +459,11 @@ $user_id = $_SESSION['user_id'];
 											}
 											echo '</td>';
 											
-											echo '
-											 <td>
-												
-												<a><span class="glyphicon glyphicon-edit" aria-hidden="true" onclick=\'populateTaskUpdateForm("'.$taskAssignedRow["id"].'","'.$taskAssignedRow["task_name"].'","false")\' data-toggle="modal" data-target="#updateTask"></span></a>
+											echo '<td>';
+												if($taskAssignedRow['task_status'] !=5){
+													echo '<a><span class="glyphicon glyphicon-edit" aria-hidden="true" onclick=\'populateTaskUpdateForm("'.$taskAssignedRow["id"].'","'.$taskAssignedRow["task_name"].'","false")\' data-toggle="modal" data-target="#updateTask"></span></a>
 												';
+												}
 											echo '</td></tr>';
 											
 										}
@@ -706,7 +727,7 @@ $user_id = $_SESSION['user_id'];
                <div class="modal-body">
                   <div class="panel panel-default">
                      <div class="panel-body">
-                        <form role="form" id="deleteTaskForm" action="../php/verifyTask.php" method="POST">
+                        <form role="form" id="verifyTaskForm" action="../php/verifyTask.php" method="POST">
                            <div class="col-md-6">
                               <div class="form-group">
                                  <label>Are you sure you want to make this <span id="verifyTask"> </span> verified?</label>

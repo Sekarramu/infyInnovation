@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 06, 2017 at 07:23 PM
+-- Generation Time: Sep 07, 2017 at 04:40 AM
 -- Server version: 5.7.16-log
 -- PHP Version: 5.6.25
 
@@ -137,7 +137,7 @@ CREATE TABLE `task` (
   `assigned_date` date DEFAULT NULL,
   `target_date` date DEFAULT NULL,
   `submit_date` date DEFAULT NULL,
-  `task_status` varchar(20) NOT NULL
+  `task_status` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -145,7 +145,10 @@ CREATE TABLE `task` (
 --
 
 INSERT INTO `task` (`id`, `task_name`, `task_desc`, `assigned_by`, `assigned_to`, `assigned_date`, `target_date`, `submit_date`, `task_status`) VALUES
-(2, 'Manage POS Team', 'afasf', 4, 3, '2017-05-01', '2017-12-01', NULL, 'Not Started');
+(3, 'Create UI for Task Manager', 'Create UI for Task Manager', 3, 1, '2017-05-01', '2017-06-01', NULL, 1),
+(4, 'Add Backend Logic for Task Manager', 'Add Backend Logic for Task Manager', 3, 1, '2017-05-01', '2017-06-01', NULL, 1),
+(6, 'Test', 'test', 3, 2, '2017-05-01', '2017-06-01', NULL, 2),
+(7, 'Manage POS Team', '', 3, 2, '2017-05-01', '2017-06-01', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -159,6 +162,13 @@ CREATE TABLE `taskownerupdate` (
   `feedback` varchar(1000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `taskownerupdate`
+--
+
+INSERT INTO `taskownerupdate` (`id`, `task_id`, `feedback`) VALUES
+(1, 6, 'Good Word!');
+
 -- --------------------------------------------------------
 
 --
@@ -171,6 +181,35 @@ CREATE TABLE `taskuserupdate` (
   `percentage` int(11) NOT NULL,
   `comments` varchar(500) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `taskuserupdate`
+--
+
+INSERT INTO `taskuserupdate` (`id`, `task_id`, `percentage`, `comments`) VALUES
+(1, 6, 50, 'Started');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `task_status`
+--
+
+CREATE TABLE `task_status` (
+  `id` int(11) NOT NULL,
+  `status_value` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `task_status`
+--
+
+INSERT INTO `task_status` (`id`, `status_value`) VALUES
+(1, 'Not Started'),
+(2, 'Started'),
+(3, 'Delayed'),
+(4, 'On Time'),
+(5, 'Verified');
 
 -- --------------------------------------------------------
 
@@ -266,18 +305,27 @@ ALTER TABLE `role`
 -- Indexes for table `task`
 --
 ALTER TABLE `task`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_task_status` (`task_status`);
 
 --
 -- Indexes for table `taskownerupdate`
 --
 ALTER TABLE `taskownerupdate`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_tou_task_id` (`task_id`);
 
 --
 -- Indexes for table `taskuserupdate`
 --
 ALTER TABLE `taskuserupdate`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_tuu_task_id` (`task_id`);
+
+--
+-- Indexes for table `task_status`
+--
+ALTER TABLE `task_status`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -317,17 +365,22 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `task`
 --
 ALTER TABLE `task`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Task Id ', AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Task Id ', AUTO_INCREMENT=8;
 --
 -- AUTO_INCREMENT for table `taskownerupdate`
 --
 ALTER TABLE `taskownerupdate`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `taskuserupdate`
 --
 ALTER TABLE `taskuserupdate`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT for table `task_status`
+--
+ALTER TABLE `task_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `upload`
 --
@@ -338,6 +391,28 @@ ALTER TABLE `upload`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `task`
+--
+ALTER TABLE `task`
+  ADD CONSTRAINT `fk_task_status` FOREIGN KEY (`task_status`) REFERENCES `task_status` (`id`);
+
+--
+-- Constraints for table `taskownerupdate`
+--
+ALTER TABLE `taskownerupdate`
+  ADD CONSTRAINT `fk_tou_task_id` FOREIGN KEY (`task_id`) REFERENCES `task` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `taskuserupdate`
+--
+ALTER TABLE `taskuserupdate`
+  ADD CONSTRAINT `fk_tuu_task_id` FOREIGN KEY (`task_id`) REFERENCES `task` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

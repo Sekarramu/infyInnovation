@@ -11,7 +11,7 @@ $assignedBy = $_SESSION['user_id'];
 //echo $taskName . "   " . $assignedTo;
 
  	$insertNewTaskQuery = "insert into task(task_name,task_desc,assigned_to,assigned_date,target_date,assigned_by,task_status)
-							values('$taskName','$taskDesc',$assignedTo,'$startDate','$endDate',$assignedBy,'Not Started')";
+							values('$taskName','$taskDesc',$assignedTo,'$startDate','$endDate',$assignedBy,(SELECT id from task_status where status_value='Not Started'))";
     $insertNewTaskQueryResult = mysqli_query($conn, $insertNewTaskQuery);
     if($insertNewTaskQueryResult)
 	{
@@ -21,6 +21,7 @@ $assignedBy = $_SESSION['user_id'];
 	else
 	{
 		$_SESSION['update'] = 'Error Occured';
+		header("Location:http://localhost/infyInnovation/pages/task-dashboard.php");
 	}
 
 	 
