@@ -7,7 +7,7 @@ $name = $_SESSION['name'];
 $username = $_SESSION['username'];
 $role_id = $_SESSION['role_id'];
 $user_id = $_SESSION['user_id'];
-
+include "../php/calculateStats.php"; 
 ?>
 <!DOCTYPE html>
 <html>
@@ -125,7 +125,7 @@ $user_id = $_SESSION['user_id'];
                <div class="panel panel-default">
                   <div class="panel-body easypiechart-panel">
                      <h4>Not Started</h4>
-                     <div class="easypiechart" id="easypiechart-orange" data-percent="92" ><span class="percent">92%</span></div>
+                     <div class="easypiechart" id="easypiechart-orange" data-percent="<?php echo $task1Graph; ?>" ><span class="percent"><?php echo $task1Graph; ?>%</span></div>
                   </div>
                </div>
             </div>
@@ -133,7 +133,7 @@ $user_id = $_SESSION['user_id'];
                <div class="panel panel-default">
                   <div class="panel-body easypiechart-panel">
                      <h4>Started</h4>
-                     <div class="easypiechart" id="easypiechart-blue" data-percent="92" ><span class="percent">92%</span></div>
+                     <div class="easypiechart" id="easypiechart-blue" data-percent="<?php echo $task2Graph; ?>" ><span class="percent"><?php echo $task2Graph; ?>%</span></div>
                   </div>
                </div>
             </div>
@@ -141,7 +141,7 @@ $user_id = $_SESSION['user_id'];
                <div class="panel panel-default">
                   <div class="panel-body easypiechart-panel">
                      <h4>Verified</h4>
-                     <div class="easypiechart" id="easypiechart-blue" data-percent="65" ><span class="percent">65%</span></div>
+                     <div class="easypiechart" id="easypiechart-green" data-percent="<?php echo $task3Graph; ?>" ><span class="percent"><?php echo $task3Graph; ?>%</span></div>
                   </div>
                </div>
             </div>
@@ -149,7 +149,7 @@ $user_id = $_SESSION['user_id'];
                <div class="panel panel-default">
                   <div class="panel-body easypiechart-panel">
                      <h4>Delayed</h4>
-                     <div class="easypiechart" id="easypiechart-red" data-percent="56" ><span class="percent">56%</span></div>
+                     <div class="easypiechart" id="easypiechart-red" data-percent="<?php echo $task4Graph; ?>" ><span class="percent"><?php echo $task5Graph; ?>%</span></div>
                   </div>
                </div>
             </div>
@@ -157,7 +157,7 @@ $user_id = $_SESSION['user_id'];
                <div class="panel panel-default">
                   <div class="panel-body easypiechart-panel">
                      <h4>On Time</h4>
-                     <div class="easypiechart" id="easypiechart-teal" data-percent="27" ><span class="percent">27%</span></div>
+                     <div class="easypiechart" id="easypiechart-teal" data-percent="<?php echo $task5Graph; ?>" ><span class="percent"><?php echo $task5Graph; ?>%</span></div>
                   </div>
                </div>
             </div>
@@ -167,11 +167,11 @@ $user_id = $_SESSION['user_id'];
             <div class="col-md-12">
                <div class="panel panel-default">
                   <div class="panel-heading">
-                     Task Assigned Graph
+                    Monthly Task Assigned Graph
                   </div>
                   <div class="panel-body">
                      <div class="canvas-wrapper">
-                        <canvas class="main-chart" id="line-chart" height="200" width="600"></canvas>
+                        <canvas class="main-chart" id="task-chart" height="200" width="600"></canvas>
                      </div>
                   </div>
                </div>
@@ -192,12 +192,12 @@ $user_id = $_SESSION['user_id'];
                      <ul class="timeline">
 						<?php
 			
-							$recentTaskUpdatesQuery = 'SELECT t.task_name,tu.comments FROM taskuserupdate tu JOIN task t on t.id = tu.task_id where t.assigned_by = $user_id order by tu.id desc limit 10';
+							$recentTaskUpdatesQuery = 'SELECT t.task_name,tu.comments FROM taskuserupdate tu JOIN task t on t.id = tu.task_id where t.assigned_by = '.$user_id.' order by tu.id desc limit 10';
 							$recentTaskUpdatesQueryResult = mysqli_query($conn, $recentTaskUpdatesQuery);
 						
 			
-							//$recent_task_updates_count = $recentTaskUpdatesQueryResult->num_rows;
-							if($recentTaskUpdatesQueryResult ){								 
+							$recent_task_updates_count = $recentTaskUpdatesQueryResult->num_rows;
+							if($recent_task_updates_count ){								 
 									while($recentTaskUpdateRow=$recentTaskUpdatesQueryResult->fetch_assoc()){
 										echo '
 											<li>
@@ -497,14 +497,22 @@ $user_id = $_SESSION['user_id'];
       <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
       <script>
          window.onload = function () {
-         var chart1 = document.getElementById("line-chart").getContext("2d");
-         window.myLine = new Chart(chart1).Line(lineChartData, {
+         var chart1 = document.getElementById("task-chart").getContext("2d");
+         window.myLine = new Chart(chart1).Line(taskChartData, {
          responsive: true,
          scaleLineColor: "rgba(0,0,0,.2)",
          scaleGridLineColor: "rgba(0,0,0,.05)",
          scaleFontColor: "#c5c7cc"
          });
+		 
+		 var chart1 = document.getElementById("task-chart").getContext("2d");
+			window.myLine = new Chart(chart1).Line(taskChartData, {
+			responsive: true
+		});
+		 
          };
+		 
+		 
       </script>
       <script>
          $(document).ready(function() {
