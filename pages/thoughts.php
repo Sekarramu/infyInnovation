@@ -13,7 +13,7 @@ $username = $_SESSION['adminID'];
 ?>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Profile</title>
+<title>OneApp - Profile</title>
 <link href="css/bootstrap.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->

@@ -7,58 +7,47 @@ echo "<script>alert('".$_SESSION["status"]."')</script>";
 unset($_SESSION['status']);
 }
  ?>
-<html >
-  <head>
-    <meta charset="UTF-8">
-    <title>Employee Forum Login</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    
-    <link rel="stylesheet" href="css/reset.css">
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>OneApp - Login</title>
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/datepicker3.css" rel="stylesheet">
+	<link href="css/styles.css" rel="stylesheet">
+	<!--[if lt IE 9]>
+	<script src="js/html5shiv.js"></script>
+	<script src="js/respond.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="row">
+		<div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4">
+			<div class="login-panel panel panel-default">
+				<div class="panel-heading">Log in</div>
+				<div class="panel-body">
+					<form role="form" method="POST" action="php/authenticateUser.php">
+						<fieldset>
+							<div class="form-group">
+								<input type="text" class="form-control" id="Username" name="Username" required="required" autofocus=""/>
+							</div>
+							<div class="form-group">
+								<input type="password"  class="form-control"  id="Password" name="Password" required="required"/>
+							</div>
+							<div class="checkbox">
+								<label>
+									<input name="remember" type="checkbox" value="Remember Me">Remember Me
+								</label>
+							</div>
+							<button type="submit" class="btn btn-primary">Login</button></fieldset>
+					</form>
+				</div>
+			</div>
+		</div><!-- /.col-->
+	</div><!-- /.row -->	
+	
 
-    <link rel='stylesheet prefetch' href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900|RobotoDraft:400,100,300,500,700,900'>
-<link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'>
-
-        <link rel="stylesheet" href="css/style.css">
-
-   </head>
-
-  <body>
-
-    
-<!-- Mixins-->
-<!-- Pen Title-->
-<div class="pen-title">
-  <h1>Employee Forum</h1>
-</div>
-<div class="container">
-  <div class="card"></div>
-  <div class="card">
-    <h1 class="title">Login</h1>
-    <form method="POST" action="php/authenticateUser.php">
-      <div class="input-container">
-        <input type="text" id="Username" name="Username" required="required"/>
-        <label for="Username">Username</label>
-        <div class="bar"></div>
-      </div>
-      <div class="input-container">
-        <input type="password" id="Password" name="Password" required="required"/>
-        <label for="Password">Password</label>
-        <div class="bar"></div>
-      </div>
-      <div class="button-container">
-        <button type="submit"><span>Proceed!!!</span></button>
-      </div>
-    </form>
-  </div>
-  
-</div>
-
-    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-
-        <script src="js/index.js"></script>
-
-    
-    
-    
-  </body>
+<script src="js/jquery-1.11.1.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+</body>
 </html>
