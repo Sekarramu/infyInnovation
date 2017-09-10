@@ -7,7 +7,7 @@ include "../php/connection/connect.php";
 if($_SESSION['status'] == 'OK')
 {
 $name = $_SESSION['name'];
-$username = $_SESSION['adminID'];
+$username = $_SESSION['username'];
 
 
 ?>
@@ -88,9 +88,30 @@ $username = $_SESSION['adminID'];
 			<hr/>
 		
 		<ul class="nav menu">
-			<li ><a href="Thoughts.php"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>Share your Thoughts</a></li>
-			<!--sekar<li><a href="../shiftEmployee.php"><svg class="glyph stroked clock"><use xlink:href="#stroked-clock"></use></svg>Employees Coming in Shift</a></li>sekar-->
-			<li><a href="fileExplorer.php"><svg class="glyph stroked clock"><use xlink:href="#stroked-clock"></use></svg>Share Point</a></li>
+				<li>
+               <a href="thoughts.php">
+                  <svg class="glyph stroked dashboard-dial">
+                     <use xlink:href="#stroked-dashboard-dial"></use>
+                  </svg>
+                  Ask a question?
+               </a>
+            </li>
+            <li>
+               <a href="fileExplorer.php">
+                  <svg class="glyph stroked clock">
+                     <use xlink:href="#stroked-clock"></use>
+                  </svg>
+                  Share Point
+               </a>
+            </li>
+            <li >
+               <a href="task-dashboard.php">
+                  <svg class="glyph stroked dashboard-dial">
+                     <use xlink:href="#stroked-dashboard-dial"></use>
+                  </svg>
+                  Task- Dashboard
+               </a>
+            </li>
 			
 		 </ul>
 
@@ -119,7 +140,7 @@ $username = $_SESSION['adminID'];
 						    <thead>
 						    <tr>
 						        <th data-align="right">Id</th>
-						        <th >Employee Name</th>
+						       
 						        <th >Username</th>
 								<th>Action</th>
 						    </tr>
@@ -127,15 +148,14 @@ $username = $_SESSION['adminID'];
 							<tr>
 							<?php
 
-								$fetchEmployeeQuery = "select * from admin where username ='$username'";
+								$fetchEmployeeQuery = "select * from users where username ='$username'";
 								$fetchEmployeeQueryResult = mysqli_query($conn, $fetchEmployeeQuery);
 								while ($fetchEmployeeRow = $fetchEmployeeQueryResult->fetch_assoc()) {
 										$qid = $fetchEmployeeRow['id'];
 								
 										echo '<tr><td>';
 										echo $fetchEmployeeRow['id'];
-										echo '</td><td>';
-										echo $fetchEmployeeRow['Name'];
+									
 										echo '</td><td>';
 										if($fetchEmployeeRow['username'] != NULL || $fetchEmployeeRow['username'] != '')
 										{
@@ -156,7 +176,7 @@ $username = $_SESSION['adminID'];
 										document.getElementById('updateQuestionTable').style.display = 'none';
 										document.getElementById('updateQuestionForm').style.display = '';
 										document.getElementById('employeeid').value = '".$qid."';
-										document.getElementById('name').value = '".$fetchEmployeeRow['Name']."';
+										
 										document.getElementById('emailId').value = '".$fetchEmployeeRow['username']."';
 										document.getElementById('oldPassword').value = '".$fetchEmployeeRow['password']."';
 										}\">Update</button><hr/>";
@@ -189,12 +209,7 @@ $username = $_SESSION['adminID'];
 									<label>ID</label>
 									<input name="employeeid" id="employeeid" class="form-control" readonly >
 								</div>
-								
-								<div class="form-group">
-									<label>Employee Name</label>
-									<input type="text" name="name"  id="name" class="form-control" readonly>
-								</div>
-																
+																														
 								<div class="form-group">
 									<label>User Name</label>
 									<input type="text" name="emailId"  id="emailId" class="form-control" readonly>

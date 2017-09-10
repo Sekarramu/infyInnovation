@@ -63,23 +63,23 @@ include "../php/calculateStats.php";
          <hr/>
          <ul class="nav menu">
             <li>
-               <a href="employeeHome.php">
+               <a href="thoughts.php">
                   <svg class="glyph stroked dashboard-dial">
                      <use xlink:href="#stroked-dashboard-dial"></use>
                   </svg>
-                  Personal Info
+                  Ask a question?
                </a>
             </li>
             <li>
-               <a href="status.php">
+               <a href="fileExplorer.php">
                   <svg class="glyph stroked clock">
                      <use xlink:href="#stroked-clock"></use>
                   </svg>
-                  Certification Status
+                  Share Point
                </a>
             </li>
             <li class="active">
-               <a href="task-dashboard.html">
+               <a href="task-dashboard.php">
                   <svg class="glyph stroked dashboard-dial">
                      <use xlink:href="#stroked-dashboard-dial"></use>
                   </svg>

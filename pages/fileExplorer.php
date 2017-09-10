@@ -7,7 +7,7 @@ include "../php/connection/connect.php";
 if($_SESSION['status'] == 'OK')
 {
 $name = $_SESSION['name'];
-$username = $_SESSION['adminID'];
+$username = $_SESSION['username'];
 
 ?>
 <meta charset="utf-8">
@@ -92,9 +92,30 @@ $username = $_SESSION['adminID'];
 			<hr/>
 		
 		<ul class="nav menu">
-			<li ><a href="Thoughts.php"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>Share your Thoughts</a></li>
-			<!--sekar<li><a href="../shiftEmployee.php"><svg class="glyph stroked clock"><use xlink:href="#stroked-clock"></use></svg>Employees Coming in Shift</a></li>sekar-->
-			<li class="active"><a href="fileExplorer.php"><svg class="glyph stroked clock"><use xlink:href="#stroked-clock"></use></svg>Share Point</a></li>
+			<li>
+               <a href="thoughts.php">
+                  <svg class="glyph stroked dashboard-dial">
+                     <use xlink:href="#stroked-dashboard-dial"></use>
+                  </svg>
+                  Ask a question?
+               </a>
+            </li>
+            <li class="active">
+               <a href="fileExplorer.php">
+                  <svg class="glyph stroked clock">
+                     <use xlink:href="#stroked-clock"></use>
+                  </svg>
+                  Share Point
+               </a>
+            </li>
+            <li >
+               <a href="task-dashboard.php">
+                  <svg class="glyph stroked dashboard-dial">
+                     <use xlink:href="#stroked-dashboard-dial"></use>
+                  </svg>
+                  Task- Dashboard
+               </a>
+            </li>
 		 </ul>
 
 	</div><!--/.sidebar-->
