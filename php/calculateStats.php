@@ -1,6 +1,6 @@
 <?php
 include "connection/connect.php"; 		
-$user_id=3;				
+$user_id=1;				
 $task1=1;
 $task2=2;
 $task3=5;
@@ -21,21 +21,20 @@ $task5=4;
 
 	$select = mysqli_query($conn, 'SELECT @task1Count');
 	$result = mysqli_fetch_assoc($select);
-	//print_r($result);
 	$task1Count= $result['@task1Count'];
 	
 	
 	//Task 2 count
-	
+	$procCall = mysqli_prepare($conn, 'CALL getTaskCount(?, ?, @task2Count)');
 	mysqli_stmt_bind_param($procCall, 'ii', $user_id, $task2);
 	mysqli_stmt_execute($procCall);
 
 	$select = mysqli_query($conn, 'SELECT @task2Count');
 	$result = mysqli_fetch_assoc($select);
-	//print_r($result);
 	$task2Count= $result['@task2Count'];
 	
 	//Task 3 count
+	$procCall = mysqli_prepare($conn, 'CALL getTaskCount(?, ?, @task3Count)');
 	mysqli_stmt_bind_param($procCall, 'ii', $user_id, $task3);
 	mysqli_stmt_execute($procCall);
 
@@ -44,6 +43,7 @@ $task5=4;
 	$task3Count= $result['@task3Count'];
 	
 	//Task 4 count
+	$procCall = mysqli_prepare($conn, 'CALL getTaskCount(?, ?, @task4Count)');
 	mysqli_stmt_bind_param($procCall, 'ii', $user_id, $task4);
 	mysqli_stmt_execute($procCall);
 
@@ -52,6 +52,7 @@ $task5=4;
 	$task4Count= $result['@task4Count'];
 	
 	//Task 5 count
+	$procCall = mysqli_prepare($conn, 'CALL getTaskCount(?, ?, @task5Count)');
 	mysqli_stmt_bind_param($procCall, 'ii', $user_id, $task5);
 	mysqli_stmt_execute($procCall);
 
@@ -76,23 +77,20 @@ $task5=4;
 	
 	//echo $task1Graph . " - ".$task2Graph. " - ".$task3Graph. " - ".$task4Graph. " - ".$task5Graph;
 	
-	$procCall = mysqli_prepare($conn, 'CALL getMonthlyTaskCount(?, ?, @taskCount)');
+	$procCall = mysqli_prepare($conn, 'CALL getMonthlyTaskCount(?, ?, @monthlyTaskCount)');
 	$months=array("January","February","March","April","May","June","July","August","September","October","November","December"); 
 	$monthlyTaskArray=array();
 	foreach ($months as $month) {
-		mysqli_stmt_bind_param($procCall, 'ii', $user_id, $month);
+		mysqli_stmt_bind_param($procCall, 'is', $user_id, $month);
 		mysqli_stmt_execute($procCall);
-
-		$select = mysqli_query($conn, 'SELECT @taskCount');
+		$select = mysqli_query($conn, 'SELECT @monthlyTaskCount');
 		$result = mysqli_fetch_assoc($select);
-		array_push($monthlyTaskArray,$result['@taskCount']);
+		array_push($monthlyTaskArray,$result['@monthlyTaskCount']);
 	}
 	$monthlyTaskJSON = json_encode($monthlyTaskArray);
 	
-	//echo $monthlyTaskJSON;
-	 echo '<script>
-	 var randomScalingFactor = function(){ return Math.round(Math.random()*1000)};
-	 ';
+	
+	 echo '<script>';
 	 
 	 	echo '
 		var taskChartData = {
