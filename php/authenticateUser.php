@@ -43,21 +43,19 @@ if ($rowcount == FALSE) {
 		$_SESSION['name'] = $userDetails["name"];
 		$_SESSION['role_id'] = $userDetails["role_id"];
 		
-		echo $_SESSION['status'];
-		echo $_SESSION['username'];
-		echo $_SESSION['name'];
-		echo $_SESSION['role_id'];
 		header("Location:http://localhost/infyInnovation/pages/task-dashboard.php");
 		
 	}else if($userCredentails['password'] == $pwd && $userCredentails['status'] == 1){/*Valid and In-Active user check*/
 		
 	}else if($userCredentails['password'] == $pwd && $userCredentails['status'] == 2){/*Valid and Locked user check*/
 		
-	}else{
+	}else if($userCredentails['password'] == $pwd && $userCredentails['status'] == 3){/*Valid and Not verified user check*/
+		
+	}
+	else{
 		$message = "Password you entered is wrong..!";
         $_SESSION['status'] = $message;
 		header("Location:http://localhost/infyInnovation/login.php");
-		echo $_SESSION['status'];
 	}
 
     

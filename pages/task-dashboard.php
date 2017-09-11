@@ -8,6 +8,7 @@ $username = $_SESSION['username'];
 $role_id = $_SESSION['role_id'];
 $user_id = $_SESSION['user_id'];
 include "../php/calculateStats.php"; 
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -108,8 +109,7 @@ include "../php/calculateStats.php";
                <h1 class="page-header">Task- Dashboard</h1>
             </div>
 			<?php if($role_id >= 6){ 
-			
-			$manageUsersQuery = "select name, user_id from employeeinfo where reporting_to='$user_id'";
+			$manageUsersQuery = "select name, user_id as reportees from employeeinfo where reporting_to='$user_id'";
 			$manageUsersQueryResult = mysqli_query($conn, $manageUsersQuery);
 			
 			?>
